@@ -179,29 +179,26 @@ build_glibc_multilib() {
     local libdir="$2"
     local cflags="$3"
 
-    mkdir -pv build-glibc-${host}
-    pushd build-glibc-${host}
+    pushd build-glibc
+		export CC="${host}-gcc ${cflags}"
+		export CXX="${host}-g++ ${cflags}"
 
-    export CC="${host}-gcc ${cflags}"
-    export CXX="${host}-g++ ${cflags}"
-    export CFLAGS="-O2 -g ${cflags}"
-    export CXXFLAGS="-O2 -g ${cflags}"
+		echo "rootsbindir=${INSTALL}/sbin" > configparms
 
-    echo "rootsbindir=${INSTALL}/sbin" > configparms
+		../glibc-${GLIBC_V}/configure \
+			--prefix=${INSTALL} \
+			--build=$(../glibc-${GLIBC_V}/scripts/config.guess) \
+			--host=${host} \
+			--disable-nscd \
+			--with-headers=${INSTALL}/include \
+			--libdir=${libdir} \
+			--libexecdir=${libdir} \
+			--enable-kernel=5.4
 
-    ../glibc-${GLIBC_V}/configure \
-        --prefix=${INSTALL} \
-        --build=$(../glibc-${GLIBC_V}/scripts/config.guess) \
-        --host=${host} \
-        --disable-nscd \
-        --with-headers=${INSTALL}/include \
-        --libdir=${libdir} \
-        --libexecdir=${libdir} \
-        --enable-kernel=5.4
-
-    make -j"${numproc}"
-    make install
-
+		make -j"${numproc}"
+		make install
+		make clean # Clean previous build
+		
     popd
 }
 
