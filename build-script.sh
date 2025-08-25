@@ -159,55 +159,44 @@ popd
 # ======================================================================
 # 4) glibc (multilib)
 # ======================================================================
-pushd glibc-${GLIBC_V}
-
-# Apply LFS FHS patch if not already applied
-if ! test -f ../glibc-${GLIBC_V}-fhs-applied; then
-    set +e
-    download "https://www.linuxfromscratch.org/patches/lfs/development/glibc-${GLIBC_V}-fhs-1.patch" || true
-    set -e
-    if test -f "glibc-${GLIBC_V}-fhs-1.patch"; then
-        patch -Np1 -i "glibc-${GLIBC_V}-fhs-1.patch" || true
-    fi
-    touch ../glibc-${GLIBC_V}-fhs-applied
-fi
-popd
-
 # Function to build glibc for a given host/ABI
 build_glibc_multilib() {
     local host="$1"
     local libdir="$2"
     local cflags="$3"
 
-    mkdir -pv build-glibc-${host}
-    pushd build-glibc-${host}
+    pushd build-glibc
+		export CC="${TARGET}-gcc ${cflags}"
+		export CXX="${TARGET}-g++ ${cflags}"
 
-    export CC="${host}-gcc ${cflags}"
-    export CXX="${host}-g++ ${cflags}"
-    export CFLAGS="-O2 -g ${cflags}"
-    export CXXFLAGS="-O2 -g ${cflags}"
+		echo "rootsbindir=${INSTALL}/sbin" > configparms
 
-    echo "rootsbindir=${INSTALL}/sbin" > configparms
+		../glibc-${GLIBC_V}/configure \
+			--prefix=${INSTALL} \
+			--build=$(../glibc-${GLIBC_V}/scripts/config.guess) \
+			--host=${host} \
+			--disable-nscd \
+			--with-headers=${INSTALL}/include \
+			--libdir=${libdir} \
+			--libexecdir=${libdir} \
+			libc_cv_slibdir=${INSTALL}/${libdir} \
+			--enable-kernel=5.4
 
-    ../glibc-${GLIBC_V}/configure \
-        --prefix=${INSTALL} \
-        --build=$(../glibc-${GLIBC_V}/scripts/config.guess) \
-        --host=${host} \
-        --disable-nscd \
-        --with-headers=${INSTALL}/include \
-        --libdir=${libdir} \
-        --libexecdir=${libdir} \
-        --enable-kernel=5.4
-
-    make -j"${numproc}"
-    make install
-
+		make -j"${numproc}"
+		make install
+		make clean # Clean previous build
     popd
 }
 
 # Build all three glibc ABIs with correct host
+unset LDFLAGS
+export LDFLAGS="-L${PWD}/../build-gcc-stage1/${TARGET}/libgcc"
 build_glibc_multilib "${TARGET}"   "${INSTALL}/lib"    ""
+unset LDFLAGS
+export LDFLAGS="-L${PWD}/../build-gcc-stage1/${TARGET}/32/libgcc"
 build_glibc_multilib "${TARGET32}" "${INSTALL}/lib32"  "-m32"
+unset LDFLAGS
+export LDFLAGS="-L${PWD}/../build-gcc-stage1/${TARGET}/x32/libgcc"
 build_glibc_multilib "${TARGETX32}" "${INSTALL}/libx32" "-mx32"
 
 # Symlinks for runtime loaders
