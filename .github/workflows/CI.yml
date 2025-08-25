@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+      - uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          msystem: MSYS
+          install: |
+            base-devel dos2unix gcc gettext-devel gmp-devel mpc-devel mpfr-devel isl-devel patch rsync
+            python
+
+      - uses: actions/checkout@v4
+
+      - name: correct crlf characters
+        run: dos2unix build-script.sh
+
+      - name: build glibc
+        run: |
+          export MSYS=winsymlinks:native
+          bash ./build-script.sh
+
+      - name: archive msys folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: msys
+          path: msys
