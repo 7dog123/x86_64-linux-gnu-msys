@@ -26,7 +26,7 @@ download(){
 # ---------- user-configurable ----------
 UNIX_WORKSPACE=$(cygpath -u "${GITHUB_WORKSPACE:-$PWD}")
 INSTALL="${UNIX_WORKSPACE}/msys"
-export PATH="$INSTALL/msys/bin:$PATH"
+export PATH="$INSTALL/bin:$PATH"
 
 BINUTILS_V=2.45
 GCC_V=15.2.0
