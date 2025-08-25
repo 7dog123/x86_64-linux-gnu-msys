@@ -39,14 +39,14 @@ TARGETX32=x86_64-pc-linux-gnux32
 BUILD=x86_64-pc-cygwin
 
 # ---------- fetch sources ----------
-test -f "binutils-${BINUTILS_V}.tar.gz"  || download "https://ftp.gnu.org/gnu/binutils/binutils-${BINUTILS_V}.tar.gz"
+test -f "binutils-${BINUTILS_V}.tar.gz"  || download "https://mirrors.cloud.tencent.com/gnu/binutils/binutils-${BINUTILS_V}.tar.gz"
 test -d "binutils-${BINUTILS_V}"         || tar -xzf "binutils-${BINUTILS_V}.tar.gz"
 
-test -f "gcc-${GCC_V}.tar.gz"            || download "https://ftp.gnu.org/gnu/gcc/gcc-${GCC_V}/gcc-${GCC_V}.tar.gz"
+test -f "gcc-${GCC_V}.tar.gz"            || download "https://mirrors.cloud.tencent.com/gnu/gcc/gcc-${GCC_V}/gcc-${GCC_V}.tar.gz"
 test -d "gcc-${GCC_V}"                   || tar -xzf "gcc-${GCC_V}.tar.gz"
 
 export MSYS=winsymlinks:native
-test -f "glibc-${GLIBC_V}.tar.xz"        || download "https://ftp.gnu.org/gnu/libc/glibc-${GLIBC_V}.tar.xz"
+test -f "glibc-${GLIBC_V}.tar.xz"        || download "https://mirrors.cloud.tencent.com/gnu/glibc/glibc-${GLIBC_V}.tar.xz"
 test -d "glibc-${GLIBC_V}"               || tar -xf "glibc-${GLIBC_V}.tar.xz"
 
 test -f "linux-${LINUX_V}.tar.xz"        || download "https://mirrors.edge.kernel.org/pub/linux/kernel/v6.x/linux-${LINUX_V}.tar.xz"
